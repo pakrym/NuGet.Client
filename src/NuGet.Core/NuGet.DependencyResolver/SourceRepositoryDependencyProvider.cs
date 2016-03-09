@@ -22,15 +22,26 @@ namespace NuGet.DependencyResolver
         private readonly ILogger _logger;
         private readonly SourceCacheContext _cacheContext;
         private FindPackageByIdResource _findPackagesByIdResource;
+        private bool _ignoreFailedSources;
 
         public SourceRepositoryDependencyProvider(
             SourceRepository sourceRepository,
             ILogger logger,
             SourceCacheContext cacheContext)
+            :this(sourceRepository, logger, cacheContext, cacheContext.IgnoreFailedSources)
+        {
+        }
+
+        public SourceRepositoryDependencyProvider(
+            SourceRepository sourceRepository,
+            ILogger logger,
+            SourceCacheContext cacheContext,
+            bool ignoreFailedSources)
         {
             _sourceRepository = sourceRepository;
             _logger = logger;
             _cacheContext = cacheContext;
+            _ignoreFailedSources = ignoreFailedSources;
         }
 
         public bool IsHttp => _sourceRepository.PackageSource.IsHttp;
@@ -39,9 +50,18 @@ namespace NuGet.DependencyResolver
         {
             await EnsureResource();
 
-            var packageVersions = await _findPackagesByIdResource.GetAllVersionsAsync(libraryRange.Name, cancellationToken);
+            IEnumerable<NuGetVersion> packageVersions = null;
+            try
+            {
+                packageVersions = await _findPackagesByIdResource.GetAllVersionsAsync(libraryRange.Name, cancellationToken);
+            }
+            catch(FatalProtocolException e) when (_ignoreFailedSources)
+            {
+                _logger.LogWarning(e.Message);
+                return null;
+            }
 
-            var packageVersion = packageVersions.FindBestMatch(libraryRange.VersionRange, version => version);
+            var packageVersion = packageVersions?.FindBestMatch(libraryRange.VersionRange, version => version);
 
             if (packageVersion != null)
             {
