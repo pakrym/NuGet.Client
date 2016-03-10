@@ -13,7 +13,7 @@ using NuGet.ProjectModel;
 
 namespace NuGet.Commands
 {
-    public class RestoreResult
+    public class RestoreResult : IRestoreResult
     {
         public bool Success { get; }
 
@@ -111,54 +111,94 @@ namespace NuGet.Commands
         /// </summary>
         /// <remarks>If <see cref="PreviousLockFile"/> and <see cref="LockFile"/> are identical
         ///  the file will not be written to disk.</remarks>
-        /// <param name="log">The logger.</param>
         /// <param name="forceWrite">Write out the lock file even if no changes exist.</param>
-        /// <param name="token">The cancellation token.</param>
         public async Task CommitAsync(ILogger log, bool forceWrite, CancellationToken token)
         {
             // Write the lock file
             var lockFileFormat = new LockFileFormat();
 
-            // Don't write the lock file if it is Locked AND we're not re-locking the file
-            if (!LockFile.IsLocked || RelockFile)
-            {
-                // Avoid writing out the lock file if it is the same to avoid triggering an intellisense
-                // update on a restore with no actual changes.
-                if (forceWrite
-                    || PreviousLockFile == null
-                    || !PreviousLockFile.Equals(LockFile))
-                {
-                    log.LogDebug($"Writing lock file to disk. Path: {LockFilePath}");
+            await CommitAsync(
+                lockFileFormat,
+                result: this,
+                log: log,
+                forceWrite: forceWrite,
+                lockBeforeWrite: false,
+                createDirectory: false,
+                token: token);
 
-                    lockFileFormat.Write(LockFilePath, LockFile);
-                }
-                else
-                {
-                    log.LogDebug($"Lock file has not changed. Skipping lock file write. Path: {LockFilePath}");
-                }
-            }
-
-            // Always write the tool lock files
             foreach (var toolRestoreResult in ToolRestoreResults)
             {
-                if (toolRestoreResult.LockFilePath != null)
+                if (toolRestoreResult.LockFilePath != null && toolRestoreResult.LockFile != null)
                 {
-                    log.LogDebug($"Writing tool lock file to disk. Path: {toolRestoreResult.LockFilePath}");
-
-                    await ConcurrencyUtilities.ExecuteWithFileLockedAsync(
-                        toolRestoreResult.LockFilePath,
-                        lockedToken =>
-                        {
-                            var lockFileDirectory = Path.GetDirectoryName(toolRestoreResult.LockFilePath);
-                            Directory.CreateDirectory(lockFileDirectory);
-                            lockFileFormat.Write(toolRestoreResult.LockFilePath, toolRestoreResult.LockFile);
-                            return Task.FromResult((object)null);
-                        },
-                        token);
+                    await CommitAsync(
+                        lockFileFormat,
+                        result: toolRestoreResult,
+                        log: log,
+                        forceWrite: forceWrite,
+                        lockBeforeWrite: true,
+                        createDirectory: true,
+                        token: token);
                 }
             }
 
             MSBuild.Commit(log);
+        }
+
+        private static async Task CommitAsync(
+            LockFileFormat lockFileFormat,
+            IRestoreResult result,
+            ILogger log,
+            bool forceWrite,
+            bool lockBeforeWrite,
+            bool createDirectory,
+            CancellationToken token)
+        {
+            // Don't write the lock file if it is Locked AND we're not re-locking the file
+            if (!result.LockFile.IsLocked || result.RelockFile)
+            {
+                // Avoid writing out the lock file if it is the same to avoid triggering an intellisense
+                // update on a restore with no actual changes.
+                if (forceWrite
+                    || result.PreviousLockFile == null
+                    || !result.PreviousLockFile.Equals(result.LockFile))
+                {
+                    log.LogDebug($"Writing lock file to disk. Path: {result.LockFilePath}");
+                    
+                    if (lockBeforeWrite)
+                    {
+                        await ConcurrencyUtilities.ExecuteWithFileLockedAsync(
+                            result.LockFilePath,
+                            lockedToken =>
+                            {
+                                WriteLockFile(lockFileFormat, result, createDirectory);
+                                return Task.FromResult(0);
+                            },
+                            token);
+                    }
+                    else
+                    {
+                        WriteLockFile(lockFileFormat, result, createDirectory);
+                    }
+                }
+                else
+                {
+                    log.LogDebug($"Lock file has not changed. Skipping lock file write. Path: {result.LockFilePath}");
+                }
+            }
+        }
+        
+        private static void WriteLockFile(
+            LockFileFormat lockFileFormat,
+            IRestoreResult result,
+            bool createDirectory)
+        {
+            if (createDirectory)
+            {
+                var lockFileDirectory = Path.GetDirectoryName(result.LockFilePath);
+                Directory.CreateDirectory(lockFileDirectory);
+            }
+            
+            lockFileFormat.Write(result.LockFilePath, result.LockFile);
         }
     }
 }
