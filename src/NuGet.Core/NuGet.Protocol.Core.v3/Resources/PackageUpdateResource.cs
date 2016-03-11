@@ -252,15 +252,15 @@ namespace NuGet.Protocol.Core.Types
             ILogger logger,
             CancellationToken token)
         {
-            var response = await _httpSource.SendAsync(
+            await _httpSource.ProcessResponseAsync(
                 () => CreateRequest(source, pathToPackage, apiKey),
+                response =>
+                {
+                    response.EnsureSuccessStatusCode();
+                    return Task.FromResult(0);
+                },
                 logger,
                 token);
-
-            using (response)
-            {
-                response.EnsureSuccessStatusCode();
-            }
         }
 
         private HttpRequestMessage CreateRequest(string source,
@@ -342,7 +342,7 @@ namespace NuGet.Protocol.Core.Types
             ILogger logger,
             CancellationToken token)
         {
-            var response = await _httpSource.SendAsync(
+            await _httpSource.ProcessResponseAsync(
                 () =>
                 {
                     // Review: Do these values need to be encoded in any way?
@@ -354,13 +354,13 @@ namespace NuGet.Protocol.Core.Types
                     }
                     return request;
                 },
+                response =>
+                {
+                    response.EnsureSuccessStatusCode();
+                    return Task.FromResult(0);
+                },
                 logger,
                 token);
-
-            using (response)
-            {
-                response.EnsureSuccessStatusCode();
-            }
         }
 
         // Deletes a package from a FileSystem.
