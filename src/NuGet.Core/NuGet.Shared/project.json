@@ -1,6 +1,6 @@
 ﻿{
   "version": "3.5.0-*",
-  "shared": "*.cs",
+  "shared": "**/*.cs",
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {

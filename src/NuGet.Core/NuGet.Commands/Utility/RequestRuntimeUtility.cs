@@ -31,25 +31,5 @@ namespace NuGet.Commands
 
             return runtimes;
         }
-
-        /// <summary>
-        /// Infer the runtimes from the current environment.
-        /// </summary>
-        public static IEnumerable<string> GetDefaultRestoreRuntimes(string os, string runtimeOsName)
-        {
-            if (string.Equals(os, "Windows", StringComparison.Ordinal))
-            {
-                // Restore the minimum version of Windows. If the user wants other runtimes, they need to opt-in
-                yield return "win7-x86";
-                yield return "win7-x64";
-            }
-            else
-            {
-                // Core CLR only supports x64 on non-windows OSes.
-                // Mono supports x86, for those scenarios the runtimes
-                // will need to be passed in or added to project.json.
-                yield return runtimeOsName + "-x64";
-            }
-        }
     }
 }

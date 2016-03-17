@@ -95,11 +95,6 @@ namespace NuGet.CommandLine.XPlat
                             CachingSourceProvider = _sourceProvider
                         };
 
-                        var defaultRuntimes = RequestRuntimeUtility.GetDefaultRestoreRuntimes(
-                            PlatformServices.Default.Runtime.OperatingSystem,
-                            PlatformServices.Default.Runtime.GetRuntimeOsName());
-                        restoreContext.FallbackRuntimes.UnionWith(defaultRuntimes);
-
                         var restoreSummaries = await RestoreRunner.Run(restoreContext);
 
                         // Summary
