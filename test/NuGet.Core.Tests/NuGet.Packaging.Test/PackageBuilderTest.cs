@@ -613,9 +613,9 @@ namespace NuGet.Packaging.Test
         }
 
         [Theory]
-        [InlineData("lib" + Path.DirectorySeparatorChar + "sl4" + Path.DirectorySeparatorChar + "_._")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "winrt" + Path.DirectorySeparatorChar + "_._")]
-        [InlineData("tools" + Path.DirectorySeparatorChar + "sl4-wp" + Path.DirectorySeparatorChar + "_._")]
+        [InlineData("lib\\sl4\\_._")]
+        [InlineData("content\\winrt\\_._")]
+        [InlineData("tools\\sl4-wp\\_._")]
         public void CreatePackageUsesV4SchemaNamespaceIfLibHasEmptyTargetFramework(string packagePath)
         {
             // Arrange
@@ -626,7 +626,7 @@ namespace NuGet.Packaging.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("testAuthor");
-            builder.Files.Add(CreatePackageFile(packagePath));
+            builder.Files.Add(CreatePackageFile(packagePath.Replace('\\', Path.DirectorySeparatorChar)));
 
             using (var ms = new MemoryStream())
             {
@@ -652,10 +652,10 @@ namespace NuGet.Packaging.Test
         }
 
         [Theory]
-        [InlineData("content" + Path.DirectorySeparatorChar + "web.config.install.xdt")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "app.config.uninstall.xdt")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "winrt45" + Path.DirectorySeparatorChar + "foo.uninstall.xdt")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "winrt45" + Path.DirectorySeparatorChar + "sub" + Path.DirectorySeparatorChar + "bar.uninstall.xdt")]
+        [InlineData("content\\web.config.install.xdt")]
+        [InlineData("content\\app.config.uninstall.xdt")]
+        [InlineData("content\\winrt45\\foo.uninstall.xdt")]
+        [InlineData("content\\winrt45\\sub\\bar.uninstall.xdt")]
         public void CreatePackageUsesV5SchemaNamespaceIfContentHasTransformFile(string packagePath)
         {
             // Arrange
@@ -666,7 +666,7 @@ namespace NuGet.Packaging.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("testAuthor");
-            builder.Files.Add(CreatePackageFile(packagePath));
+            builder.Files.Add(CreatePackageFile(packagePath.Replace('\\', Path.DirectorySeparatorChar)));
 
             using (var ms = new MemoryStream())
             {
@@ -729,10 +729,10 @@ namespace NuGet.Packaging.Test
         }
 
         [Theory]
-        [InlineData("lib" + Path.DirectorySeparatorChar + "web.config.install.xdt")]
-        [InlineData("lib" + Path.DirectorySeparatorChar + "app.config.uninstall.xdt")]
-        [InlineData("tools" + Path.DirectorySeparatorChar + "foo.uninstall.xdt")]
-        [InlineData("random" + Path.DirectorySeparatorChar + "sub" + Path.DirectorySeparatorChar + "bar.uninstall.xdt")]
+        [InlineData("lib\\web.config.install.xdt")]
+        [InlineData("lib\\app.config.uninstall.xdt")]
+        [InlineData("tools\\foo.uninstall.xdt")]
+        [InlineData("random\\sub\\bar.uninstall.xdt")]
         public void CreatePackageDoesNotUseV5SchemaNamespaceIfTransformFileIsOutsideContent(string packagePath)
         {
             // Arrange
@@ -743,7 +743,7 @@ namespace NuGet.Packaging.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("testAuthor");
-            builder.Files.Add(CreatePackageFile(packagePath));
+            builder.Files.Add(CreatePackageFile(packagePath.Replace('\\', Path.DirectorySeparatorChar)));
 
             using (var ms = new MemoryStream())
             {
@@ -769,11 +769,11 @@ namespace NuGet.Packaging.Test
         }
 
         [Theory]
-        [InlineData("content" + Path.DirectorySeparatorChar + "web.config.install2.xdt")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "app.config.xdt")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "foo.update.xdt")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "sub" + Path.DirectorySeparatorChar + "bar.xdt.uninstall")]
-        [InlineData("content" + Path.DirectorySeparatorChar + "sub" + Path.DirectorySeparatorChar + "bar.xdt.install")]
+        [InlineData("content\\web.config.install2.xdt")]
+        [InlineData("content\\app.config.xdt")]
+        [InlineData("content\\foo.update.xdt")]
+        [InlineData("content\\sub\\bar.xdt.uninstall")]
+        [InlineData("content\\sub\\bar.xdt.install")]
         public void CreatePackageDoesNotUseV5SchemaNamespaceIfTransformFileExtensionIsNotComplete(string packagePath)
         {
             // Arrange
@@ -784,7 +784,7 @@ namespace NuGet.Packaging.Test
                 Description = "Descriptions",
             };
             builder.Authors.Add("testAuthor");
-            builder.Files.Add(CreatePackageFile(packagePath));
+            builder.Files.Add(CreatePackageFile(packagePath.Replace('\\', Path.DirectorySeparatorChar)));
 
             using (var ms = new MemoryStream())
             {
