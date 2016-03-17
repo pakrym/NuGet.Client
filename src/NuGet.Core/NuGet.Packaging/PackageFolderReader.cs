@@ -64,7 +64,7 @@ namespace NuGet.Packaging
         /// </summary>
         public override Stream GetNuspec()
         {
-            var nuspecFiles = _root.GetFiles("*.nuspec", SearchOption.TopDirectoryOnly);
+            var nuspecFiles = _root.GetFiles("*.[nN][uU][sS][pP][eE][cC]", SearchOption.TopDirectoryOnly);
 
             if (nuspecFiles.Length == 0)
             {

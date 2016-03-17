@@ -57,6 +57,7 @@ namespace NuGet.Packaging.Test
         public void ManifestValidatesManifestFiles()
         {
             // Arrange
+            char badChar = Path.GetInvalidPathChars()[0];
             var manifestMetadata = new ManifestMetadata
             {
                 Id = "Foobar",
@@ -69,22 +70,22 @@ namespace NuGet.Packaging.Test
 
             manifest.Files.AddRange(new[] {
                 new ManifestFile {
-                    Source = "|",
+                    Source = String.Empty + badChar,
                     Target = "<"
                 },
                 new ManifestFile {
-                    Source = @"foo\bar\|>",
+                    Source = @"foo" + Path.DirectorySeparatorChar + "bar" + Path.DirectorySeparatorChar + badChar + ">",
                     Target = "lib"
                 },
                 new ManifestFile {
-                    Source = @"foo\**\*.cs",
-                    Exclude = "Exclude|"
+                    Source = @"foo" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "*.cs",
+                    Exclude = "Exclude" + badChar
                 }
             });
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "Source path '|' contains invalid characters." + Environment.NewLine + "Target path '<' contains invalid characters." + Environment.NewLine + "Source path 'foo\\bar\\|>' contains invalid characters." + Environment.NewLine + "Exclude path 'Exclude|' contains invalid characters.");
+                "Source path '" + badChar + "' contains invalid characters." + Environment.NewLine + "Target path ' <' contains invalid characters." + Environment.NewLine + "Source path 'foo" + Path.DirectorySeparatorChar + "bar" + Path.DirectorySeparatorChar + badChar + ">' contains invalid characters." + Environment.NewLine + "Exclude path 'Exclude" + badChar + "' contains invalid characters.");
         }
 
         [Fact]
@@ -101,7 +102,7 @@ namespace NuGet.Packaging.Test
                         new PackageReferenceSet(new [] {
                             "Foo?.dll",
                             "Bar*.dll",
-                            @"net40\baz.dll"
+                            @"net40" + Path.DirectorySeparatorChar + "baz.dll"
                         }),
                         new PackageReferenceSet(".NETFramework, Version=4.0", new [] {
                             "wee?dd.dll"
@@ -116,7 +117,7 @@ namespace NuGet.Packaging.Test
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "Assembly reference 'Foo?.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'Bar*.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'net40\\baz.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'wee?dd.dll' contains invalid characters.");
+                "Assembly reference 'Foo?.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'Bar*.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'net40" + Path.DirectorySeparatorChar + "baz.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'wee?dd.dll' contains invalid characters.");
         }
 
         [Fact]
@@ -260,15 +261,15 @@ namespace NuGet.Packaging.Test
             // Arrange
             var manifestStream = CreateManifest(files: new[] {
                             new ManifestFile { Source = "Foo.cs", Target = "src" },
-                            new ManifestFile { Source = @"**\bin\*.dll;**\bin\*.exe", Target = @"lib\net40", Exclude = @"**\*Test*" }
+                            new ManifestFile { Source = @"**" + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "*.dll;**" + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "*.exe", Target = @"lib" + Path.DirectorySeparatorChar + "net40", Exclude = @"**" + Path.DirectorySeparatorChar + "*Test*" }
                     });
 
             var expectedManifest = new Manifest(
                 new ManifestMetadata { Id = "Test-Pack", Version = NuGetVersion.Parse("1.0.0"), Description = "Test description", Authors = new[] { "NuGet Test" } },
                 new List<ManifestFile> {
                             new ManifestFile { Source = "Foo.cs", Target = "src" },
-                            new ManifestFile { Source = @"**\bin\*.dll", Target = @"lib\net40", Exclude = @"**\*Test*" },
-                            new ManifestFile { Source = @"**\bin\*.exe", Target = @"lib\net40", Exclude = @"**\*Test*" },
+                            new ManifestFile { Source = @"**" + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "*.dll", Target = @"lib" + Path.DirectorySeparatorChar + "net40", Exclude = @"**" + Path.DirectorySeparatorChar + "*Test*" },
+                            new ManifestFile { Source = @"**" + Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar + "*.exe", Target = @"lib" + Path.DirectorySeparatorChar + "net40", Exclude = @"**" + Path.DirectorySeparatorChar + "*Test*" },
                         }
             );
 
