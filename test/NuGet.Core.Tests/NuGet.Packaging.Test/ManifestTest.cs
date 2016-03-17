@@ -57,7 +57,6 @@ namespace NuGet.Packaging.Test
         public void ManifestValidatesManifestFiles()
         {
             // Arrange
-            char badChar = Path.GetInvalidPathChars()[0];
             var manifestMetadata = new ManifestMetadata
             {
                 Id = "Foobar",
@@ -70,22 +69,22 @@ namespace NuGet.Packaging.Test
 
             manifest.Files.AddRange(new[] {
                 new ManifestFile {
-                    Source = String.Empty + badChar,
+                    Source = "|",
                     Target = "<"
                 },
                 new ManifestFile {
-                    Source = @"foo" + Path.DirectorySeparatorChar + "bar" + Path.DirectorySeparatorChar + badChar + ">",
+                    Source = @"foo" + Path.DirectorySeparatorChar + "bar" + Path.DirectorySeparatorChar + "|>",
                     Target = "lib"
                 },
                 new ManifestFile {
                     Source = @"foo" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "*.cs",
-                    Exclude = "Exclude" + badChar
+                    Exclude = "Exclude|"
                 }
             });
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "Source path '" + badChar + "' contains invalid characters." + Environment.NewLine + "Target path ' <' contains invalid characters." + Environment.NewLine + "Source path 'foo" + Path.DirectorySeparatorChar + "bar" + Path.DirectorySeparatorChar + badChar + ">' contains invalid characters." + Environment.NewLine + "Exclude path 'Exclude" + badChar + "' contains invalid characters.");
+                "Source path '|' contains invalid characters." + Environment.NewLine + "Target path ' <' contains invalid characters." + Environment.NewLine + "Source path 'foo" + Path.DirectorySeparatorChar + "bar" + Path.DirectorySeparatorChar + "|>' contains invalid characters." + Environment.NewLine + "Exclude path 'Exclude|' contains invalid characters.");
         }
 
         [Fact]
