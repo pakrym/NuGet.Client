@@ -27,7 +27,7 @@ namespace NuGet.Packaging.Test
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "Id is required.\r\nVersion is required.\r\nAuthors is required.\r\nDescription is required.");
+                "Id is required." + Environment.NewLine + "Version is required." + Environment.NewLine + "Authors is required." + Environment.NewLine + "Description is required.");
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace NuGet.Packaging.Test
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "LicenseUrl cannot be empty.\r\nIconUrl cannot be empty.\r\nProjectUrl cannot be empty.");
+                "LicenseUrl cannot be empty." + Environment.NewLine + "IconUrl cannot be empty." + Environment.NewLine + "ProjectUrl cannot be empty.");
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace NuGet.Packaging.Test
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "Source path '|' contains invalid characters.\r\nTarget path '<' contains invalid characters.\r\nSource path 'foo\\bar\\|>' contains invalid characters.\r\nExclude path 'Exclude|' contains invalid characters.");
+                "Source path '|' contains invalid characters." + Environment.NewLine + "Target path '<' contains invalid characters." + Environment.NewLine + "Source path 'foo\\bar\\|>' contains invalid characters." + Environment.NewLine + "Exclude path 'Exclude|' contains invalid characters.");
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace NuGet.Packaging.Test
 
             // Act and Assert
             ExceptionAssert.Throws<Exception>(() => Manifest.Validate(manifest),
-                "Assembly reference 'Foo?.dll' contains invalid characters.\r\nAssembly reference 'Bar*.dll' contains invalid characters.\r\nAssembly reference 'net40\\baz.dll' contains invalid characters.\r\nAssembly reference 'wee?dd.dll' contains invalid characters.");
+                "Assembly reference 'Foo?.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'Bar*.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'net40\\baz.dll' contains invalid characters." + Environment.NewLine + "Assembly reference 'wee?dd.dll' contains invalid characters.");
         }
 
         [Fact]
