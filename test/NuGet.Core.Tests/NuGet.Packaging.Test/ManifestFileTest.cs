@@ -37,57 +37,57 @@ namespace NuGet.Packaging.Test
         public void ManifestFileReturnsValidationResultIfSourceContainsInvalidCharacters()
         {
             // Arrange
-            var manifestFile = new ManifestFile { Source = @"bin\\|\\*.dll", Target = @"lib" };
+            var manifestFile = new ManifestFile { Source = "bin" + Path.DirectorySeparatorChar + "|" + Path.DirectorySeparatorChar + "*.dll", Target = @"lib" };
 
             // Act
             var result = manifestFile.Validate().ToList();
 
             // Assert
             Assert.Equal(1, result.Count);
-            Assert.Equal(@"Source path 'bin\\|\\*.dll' contains invalid characters.", result.Single());
+            Assert.Equal(@"Source path 'bin" + Path.DirectorySeparatorChar + "|" + Path.DirectorySeparatorChar + "*.dll' contains invalid characters.", result.Single());
         }
 
         [Fact]
         public void ManifestFileReturnsValidationResultIfTargetContainsInvalidCharacters()
         {
             // Arrange
-            var manifestFile = new ManifestFile { Source = @"bin\\**\\*.dll", Target = @"lib\\|\\net40" };
+            var manifestFile = new ManifestFile { Source = @"bin" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "*.dll", Target = @"lib" + Path.DirectorySeparatorChar + "|" + Path.DirectorySeparatorChar + "net40" };
 
             // Act
             var result = manifestFile.Validate().ToList();
 
             // Assert
             Assert.Equal(1, result.Count);
-            Assert.Equal(@"Target path 'lib\\|\\net40' contains invalid characters.", result.Single());
+            Assert.Equal(@"Target path 'lib" + Path.DirectorySeparatorChar + "|" + Path.DirectorySeparatorChar + "net40' contains invalid characters.", result.Single());
         }
 
         [Fact]
         public void ManifestFileReturnsValidationResultsIfSourceAndTargetContainsInvalidCharacters()
         {
             // Arrange
-            var manifestFile = new ManifestFile { Source = @"bin|\\**\\*.dll", Target = @"lib\\|\\net40" };
+            var manifestFile = new ManifestFile { Source = @"bin|" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "*.dll", Target = @"lib" + Path.DirectorySeparatorChar + "|" + Path.DirectorySeparatorChar + "net40" };
 
             // Act
             var result = manifestFile.Validate().ToList();
 
             // Assert
             Assert.Equal(2, result.Count);
-            Assert.Equal(@"Source path 'bin|\\**\\*.dll' contains invalid characters.", result.First());
-            Assert.Equal(@"Target path 'lib\\|\\net40' contains invalid characters.", result.Last());
+            Assert.Equal(@"Source path 'bin|" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "*.dll' contains invalid characters.", result.First());
+            Assert.Equal(@"Target path 'lib" + Path.DirectorySeparatorChar + "|" + Path.DirectorySeparatorChar + "net40' contains invalid characters.", result.Last());
         }
 
         [Fact]
         public void ManifestFileReturnsValidationResultsIfTargetPathContainsWildCardCharacters()
         {
             // Arrange
-            var manifestFile = new ManifestFile { Source = @"bin\\**\\*.dll", Target = @"lib\\**\\net40" };
+            var manifestFile = new ManifestFile { Source = @"bin" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "*.dll", Target = @"lib" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "net40" };
 
             // Act
             var result = manifestFile.Validate().ToList();
 
             // Assert
             Assert.Equal(1, result.Count);
-            Assert.Equal(@"Target path 'lib\\**\\net40' contains invalid characters.", result.Single());
+            Assert.Equal(@"Target path 'lib" + Path.DirectorySeparatorChar + "**" + Path.DirectorySeparatorChar + "net40' contains invalid characters.", result.Single());
         }
     }
 }
