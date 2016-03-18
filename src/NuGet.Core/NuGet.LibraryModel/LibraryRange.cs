@@ -9,6 +9,17 @@ namespace NuGet.LibraryModel
 {
     public class LibraryRange : IEquatable<LibraryRange>
     {
+        public LibraryRange()
+        {
+        }
+
+        public LibraryRange(string name, VersionRange versionRange, LibraryDependencyTarget typeConstraint)
+        {
+            Name = name;
+            VersionRange = versionRange;
+            TypeConstraint = typeConstraint;
+        }
+
         public string Name { get; set; }
 
         public VersionRange VersionRange { get; set; }

@@ -199,7 +199,7 @@ namespace NuGet.Commands
                             Name = library.Name,
                             Version = library.Version,
                             Type = LibraryTypes.Project,
-                            Framework = projectFramework,
+                            Framework = NuGetFramework.Parse(projectFramework),
 
                             // Find all dependencies which would be in the nuspec
                             // Include dependencies with no constraints, or package/project/external

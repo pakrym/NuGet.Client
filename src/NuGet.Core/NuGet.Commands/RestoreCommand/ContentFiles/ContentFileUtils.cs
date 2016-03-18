@@ -17,9 +17,6 @@ namespace NuGet.Commands
     internal static class ContentFileUtils
     {
         private const string ContentFilesFolderName = "contentFiles/";
-        private const string BuildAction = "buildAction";
-        private const string CopyToOutput = "copyToOutput";
-        private const string CodeLanguage = "codeLanguage";
         private const string None = "None";
 
         /// <summary>
@@ -126,12 +123,12 @@ namespace NuGet.Commands
         /// <summary>
         /// Apply build actions from the nuspec to items from the contentFiles folder.
         /// </summary>
-        internal static List<LockFileItem> GetContentFileGroup(
+        internal static List<LockFileContentFile> GetContentFileGroup(
             NuGetFramework framework,
             NuspecReader nuspec,
             List<ContentItemGroup> contentFileGroups)
         {
-            var results = new List<LockFileItem>(contentFileGroups.Count);
+            var results = new List<LockFileContentFile>(contentFileGroups.Count);
             var rootFolderPathLength = ContentFilesFolderName.Length;
 
             // Read the contentFiles section of the nuspec
@@ -243,12 +240,10 @@ namespace NuGet.Commands
                 }
 
                 // Add attributes to the lock file item
-                var lockFileItem = new LockFileItem(file);
+                var lockFileItem = new LockFileContentFile(file);
 
                 // Add the language from the directory path
-                lockFileItem.Properties.Add(
-                    CodeLanguage,
-                    languageMappings[file].ToLowerInvariant());
+                lockFileItem.CodeLanguage = languageMappings[file].ToLowerInvariant();
 
                 // normalize and validate the build action name
                 // the action will be null if the string was unrecognized
@@ -261,8 +256,8 @@ namespace NuGet.Commands
                     throw new PackagingException(message);
                 }
 
-                lockFileItem.Properties.Add(BuildAction, normalizedAction);
-                lockFileItem.Properties.Add(CopyToOutput, copyToOutput.ToString());
+                lockFileItem.BuildAction = normalizedAction;
+                lockFileItem.CopyToOutput = copyToOutput;
 
                 // Check if this is a .pp transform. If the filename is ".pp" ignore it since it will
                 // have no file name after the transform.
@@ -290,7 +285,7 @@ namespace NuGet.Commands
                         destination = destination.Substring(0, destination.Length - 3);
                     }
 
-                    lockFileItem.Properties.Add("outputPath", destination);
+                    lockFileItem.OutputPath = destination;
                 }
 
                 // Add the pp transform file if one exists
@@ -299,7 +294,7 @@ namespace NuGet.Commands
                     var destination = lockFileItem.Path.Substring(0, lockFileItem.Path.Length - 3);
                     destination = GetContentFileFolderRelativeToFramework(destination);
 
-                    lockFileItem.Properties.Add("ppOutputPath", destination);
+                    lockFileItem.PPOutputPath = destination;
                 }
 
                 results.Add(lockFileItem);
@@ -311,14 +306,13 @@ namespace NuGet.Commands
         /// <summary>
         /// Create an empty lock file item for any/any
         /// </summary>
-        internal static LockFileItem CreateEmptyItem()
+        internal static LockFileContentFile CreateEmptyItem()
         {
-            var item = new LockFileItem("contentFiles/any/any/_._");
-            item.Properties.Add(BuildAction, None);
-            item.Properties.Add(CopyToOutput, Boolean.FalseString);
-            item.Properties.Add(CodeLanguage, "any");
-
-            return item;
+            return new LockFileContentFile("contentFiles/any/any/_._")
+            {
+                BuildAction = None,
+                CopyToOutput = false
+            };
         }
 
         // Find path relative to the TxM

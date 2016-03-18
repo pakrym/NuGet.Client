@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
 
@@ -13,11 +14,11 @@ namespace NuGet.ProjectModel
     {
         public string Name { get; set; }
 
+        public NuGetFramework Framework { get; set; }
+
         public NuGetVersion Version { get; set; }
 
         public string Type { get; set; }
-
-        public string Framework { get; set; }
 
         public IList<PackageDependency> Dependencies { get; set; } = new List<PackageDependency>();
 
@@ -31,9 +32,9 @@ namespace NuGet.ProjectModel
 
         public IList<LockFileItem> NativeLibraries { get; set; } = new List<LockFileItem>();
 
-        public IList<LockFileItem> ContentFiles { get; set; } = new List<LockFileItem>();
+        public IList<LockFileContentFile> ContentFiles { get; set; } = new List<LockFileContentFile>();
 
-        public IList<LockFileItem> RuntimeTargets { get; set; } = new List<LockFileItem>();
+        public IList<LockFileRuntimeTarget> RuntimeTargets { get; set; } = new List<LockFileRuntimeTarget>();
 
         public bool Equals(LockFileTargetLibrary other)
         {
@@ -50,7 +51,7 @@ namespace NuGet.ProjectModel
             return string.Equals(Name, other.Name)
                 && VersionComparer.Default.Equals(Version, other.Version)
                 && string.Equals(Type, other.Type, StringComparison.Ordinal)
-                && string.Equals(Framework, other.Framework, StringComparison.Ordinal)
+                && Framework == other.Framework
                 && Dependencies.OrderBy(dependency => dependency.Id, StringComparer.OrdinalIgnoreCase)
                     .SequenceEqual(other.Dependencies.OrderBy(dependency => dependency.Id, StringComparer.OrdinalIgnoreCase))
                 && FrameworkAssemblies.OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
