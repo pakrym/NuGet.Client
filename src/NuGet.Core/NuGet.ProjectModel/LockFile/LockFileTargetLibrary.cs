@@ -14,7 +14,7 @@ namespace NuGet.ProjectModel
     {
         public string Name { get; set; }
 
-        public NuGetFramework Framework { get; set; }
+        public string Framework { get; set; }
 
         public NuGetVersion Version { get; set; }
 
@@ -51,7 +51,7 @@ namespace NuGet.ProjectModel
             return string.Equals(Name, other.Name)
                 && VersionComparer.Default.Equals(Version, other.Version)
                 && string.Equals(Type, other.Type, StringComparison.Ordinal)
-                && Framework == other.Framework
+                && string.Equals(Framework, other.Framework, StringComparison.Ordinal)
                 && Dependencies.OrderBy(dependency => dependency.Id, StringComparer.OrdinalIgnoreCase)
                     .SequenceEqual(other.Dependencies.OrderBy(dependency => dependency.Id, StringComparer.OrdinalIgnoreCase))
                 && FrameworkAssemblies.OrderBy(s => s, StringComparer.OrdinalIgnoreCase)

@@ -5,7 +5,7 @@ using System;
 
 namespace NuGet.ProjectModel
 {
-    public class LockFileContentFile: LockFileItem, IEquatable<LockFileContentFile>
+    public class LockFileContentFile: LockFileItem
     {
         public const string BuildActionProperty = "buildAction";
         public const string CodeLanguageProperty = "codeLanguage";

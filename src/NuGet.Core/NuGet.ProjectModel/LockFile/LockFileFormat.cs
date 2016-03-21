@@ -274,7 +274,7 @@ namespace NuGet.ProjectModel
 
             var jObject = json as JObject;
             library.Type = ReadProperty<string>(jObject, TypeProperty);
-            library.Framework = NuGetFramework.Parse(ReadProperty<string>(jObject, FrameworkProperty));
+            library.Framework = ReadProperty<string>(jObject, FrameworkProperty);
 
             library.Dependencies = ReadObject(json[DependenciesProperty] as JObject, ReadPackageDependency);
             library.FrameworkAssemblies = ReadArray(json[FrameworkAssembliesProperty] as JArray, ReadString);

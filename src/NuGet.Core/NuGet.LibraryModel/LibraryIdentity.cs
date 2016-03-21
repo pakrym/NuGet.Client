@@ -8,6 +8,17 @@ namespace NuGet.LibraryModel
 {
     public class LibraryIdentity : IEquatable<LibraryIdentity>, IComparable<LibraryIdentity>
     {
+        public LibraryIdentity()
+        {
+        }
+
+        public LibraryIdentity(string name, NuGetVersion version, string type)
+        {
+            Name = name;
+            Version = version;
+            Type = type;
+        }
+
         public string Name { get; set; }
 
         public NuGetVersion Version { get; set; }

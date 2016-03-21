@@ -1809,12 +1809,12 @@ namespace NuGet.Commands.Test
             SimpleTestPackageUtility.CreatePackages(packages, repositoryDir);
         }
 
-        private bool IsEmptyFolder(IList<LockFileItem> group)
+        private bool IsEmptyFolder(IEnumerable<LockFileItem> group)
         {
             return group.SingleOrDefault()?.Path.EndsWith("/_._") == true;
         }
 
-        private int GetNonEmptyCount(IList<LockFileItem> group)
+        private int GetNonEmptyCount(IEnumerable<LockFileItem> group)
         {
             return group.Where(e => !e.Path.EndsWith("/_._")).Count();
         }

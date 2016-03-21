@@ -13,6 +13,10 @@ namespace NuGet.LibraryModel
         {
         }
 
+        public LibraryRange(string name, LibraryDependencyTarget typeConstraint): this(name, null, typeConstraint)
+        {
+        }
+
         public LibraryRange(string name, VersionRange versionRange, LibraryDependencyTarget typeConstraint)
         {
             Name = name;
