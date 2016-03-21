@@ -44,14 +44,14 @@ namespace NuGet.LibraryModel
             switch (TypeConstraint)
             {
                 case LibraryDependencyTarget.Reference:
-                    contraintString = LibraryTypes.Reference;
+                    contraintString = LibraryType.Reference;
                     break;
                 case LibraryDependencyTarget.ExternalProject:
-                    contraintString = LibraryTypes.ExternalProject;
+                    contraintString = LibraryType.ExternalProject;
                     break;
                 case LibraryDependencyTarget.Project:
                 case LibraryDependencyTarget.Project | LibraryDependencyTarget.ExternalProject:
-                    contraintString = LibraryTypes.Project;
+                    contraintString = LibraryType.Project;
                     break;
             }
 

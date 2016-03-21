@@ -17,63 +17,7 @@ namespace NuGet.Commands
     internal static class ContentFileUtils
     {
         private const string ContentFilesFolderName = "contentFiles/";
-        private const string None = "None";
-
-        /// <summary>
-        /// Normalizes build action casing and validates the action string.
-        /// Returns null if the action is an unknown string.
-        /// </summary>
-        internal static string GetBuildActionOrNull(string action)
-        {
-            // Case sensitive compare
-            if (BuildActionList.Contains(action))
-            {
-                return action;
-            }
-
-            // Find the correct casing
-            var correctCase = BuildActionList.FirstOrDefault(buildAction => string.Equals(
-                action,
-                buildAction,
-                StringComparison.OrdinalIgnoreCase));
-
-            return correctCase;
-        }
-
-        private static HashSet<string> _buildActionList = null;
-
-        /// <summary>
-        /// Build action white list used for nuspec data.
-        /// </summary>
-        private static HashSet<string> BuildActionList
-        {
-            get
-            {
-                if (_buildActionList == null)
-                {
-                    _buildActionList = new HashSet<string>(new string[]
-                    {
-                        "None",
-                        "Compile",
-                        "Content",
-                        "EmbeddedResource",
-                        "ApplicationDefinition",
-                        "Page",
-                        "Resource",
-                        "SplashScreen",
-                        "DesignData",
-                        "DesignDataWithDesignTimeCreatableTypes",
-                        "CodeAnalysisDictionary",
-                        "AndroidAsset",
-                        "AndroidResource",
-                        "BundleResource"
-                    }, StringComparer.Ordinal);
-                }
-
-                return _buildActionList;
-            }
-        }
-
+        
         /// <summary>
         /// Get all content groups that have the nearest TxM
         /// </summary>
@@ -206,14 +150,14 @@ namespace NuGet.Commands
             foreach (var file in entryMappings.Keys)
             {
                 // defaults
-                var action = PackagingConstants.ContentFilesDefaultBuildAction;
+                var action = BuildAction.Parse(PackagingConstants.ContentFilesDefaultBuildAction);
                 var copyToOutput = false;
                 var flatten = false;
 
                 // _._ is needed for empty codeLanguage groups
                 if (file.EndsWith(PackagingCoreConstants.ForwardSlashEmptyFolder, StringComparison.Ordinal))
                 {
-                    action = None;
+                    action = BuildAction.None;
                 }
                 else
                 {
@@ -224,7 +168,7 @@ namespace NuGet.Commands
                     {
                         if (!string.IsNullOrEmpty(filesEntry.BuildAction))
                         {
-                            action = filesEntry.BuildAction;
+                            action = BuildAction.Parse(filesEntry.BuildAction);
                         }
 
                         if (filesEntry.CopyToOutput.HasValue)
@@ -245,18 +189,14 @@ namespace NuGet.Commands
                 // Add the language from the directory path
                 lockFileItem.CodeLanguage = languageMappings[file].ToLowerInvariant();
 
-                // normalize and validate the build action name
-                // the action will be null if the string was unrecognized
-                var normalizedAction = GetBuildActionOrNull(action);
-
-                if (normalizedAction == null)
+                if (!action.IsKnown)
                 {
                     // Throw an error containing the package identity, invalid action, and file where it occurred.
                     var message = string.Format(CultureInfo.CurrentCulture, Strings.Error_UnknownBuildAction, nuspec.GetIdentity(), action, file);
                     throw new PackagingException(message);
                 }
 
-                lockFileItem.BuildAction = normalizedAction;
+                lockFileItem.BuildAction = action;
                 lockFileItem.CopyToOutput = copyToOutput;
 
                 // Check if this is a .pp transform. If the filename is ".pp" ignore it since it will
@@ -310,7 +250,7 @@ namespace NuGet.Commands
         {
             return new LockFileContentFile("contentFiles/any/any/_._")
             {
-                BuildAction = None,
+                BuildAction = BuildAction.None,
                 CopyToOutput = false
             };
         }

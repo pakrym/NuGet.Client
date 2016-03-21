@@ -33,23 +33,23 @@ namespace NuGet.ProjectModel
         {
             get
             {
-                return GetProperty(OutputPathProperty);
+                return GetProperty(PPOutputPathProperty);
             }
             set
             {
-                SetProperty(OutputPathProperty, value);
+                SetProperty(PPOutputPathProperty, value);
             }
         }
 
-        public string BuildAction
+        public BuildAction BuildAction
         {
             get
             {
-                return GetProperty(OutputPathProperty);
+                return BuildAction.Parse(GetProperty(BuildActionProperty));
             }
             set
             {
-                SetProperty(OutputPathProperty, value);
+                SetProperty(OutputPathProperty, value.Value);
             }
         }
 
@@ -57,11 +57,11 @@ namespace NuGet.ProjectModel
         {
             get
             {
-                return GetProperty(OutputPathProperty);
+                return GetProperty(CodeLanguageProperty);
             }
             set
             {
-                SetProperty(OutputPathProperty, value);
+                SetProperty(CodeLanguageProperty, value);
             }
         }
 
@@ -69,11 +69,11 @@ namespace NuGet.ProjectModel
         {
             get
             {
-                return string.Equals(GetProperty(OutputPathProperty), bool.TrueString, StringComparison.OrdinalIgnoreCase);
+                return string.Equals(GetProperty(CopyToOutputProperty), bool.TrueString, StringComparison.OrdinalIgnoreCase);
             }
             set
             {
-                SetProperty(OutputPathProperty, value.ToString());
+                SetProperty(CopyToOutputProperty, value.ToString());
             }
         }
     }

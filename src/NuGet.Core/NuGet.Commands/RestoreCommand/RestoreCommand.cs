@@ -727,7 +727,7 @@ namespace NuGet.Commands
         private void DowngradeLockFileToV1(LockFile lockFile)
         {
             // Remove projects from the library section
-            var libraryProjects = lockFile.Libraries.Where(lib => lib.Type == LibraryTypes.Project).ToArray();
+            var libraryProjects = lockFile.Libraries.Where(lib => lib.Type == LibraryType.Project).ToArray();
 
             foreach (var library in libraryProjects)
             {
@@ -737,7 +737,7 @@ namespace NuGet.Commands
             // Remove projects from the targets section
             foreach (var target in lockFile.Targets)
             {
-                var targetProjects = target.Libraries.Where(lib => lib.Type == LibraryTypes.Project).ToArray();
+                var targetProjects = target.Libraries.Where(lib => lib.Type == LibraryType.Project).ToArray();
 
                 foreach (var library in targetProjects)
                 {
@@ -866,7 +866,7 @@ namespace NuGet.Commands
                 {
                     var match = result.Flattened.FirstOrDefault(g => g.Key.Name.Equals(dependency.LibraryRange.Name));
                     if (match != null 
-                        && LibraryTypes.Package == match.Key.Type
+                        && LibraryType.Package == match.Key.Type
                         && match.Key.Version > dependency.LibraryRange.VersionRange.MinVersion)
                     {
                         _logger.LogWarning(string.Format(CultureInfo.CurrentCulture, Strings.Log_DependencyBumpedUp, 

@@ -2,56 +2,53 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace NuGet.ProjectModel
 {
     public struct BuildAction : IEquatable<BuildAction>
     {
-        public static readonly BuildAction Compile = new BuildAction(nameof(Compile));
-        public static readonly BuildAction EmbeddedResource = new BuildAction(nameof(EmbeddedResource));
-        public static readonly BuildAction Resource = new BuildAction(nameof(Resource));
+        private static ConcurrentDictionary<string, BuildAction> _knownBuildActions = new ConcurrentDictionary<string, BuildAction>(StringComparer.OrdinalIgnoreCase);
 
-        // Default value
-        public static readonly BuildAction None = new BuildAction(nameof(None));
+        public static BuildAction None = Define(nameof(None));
+        public static BuildAction Compile = Define(nameof(Compile));
+        public static BuildAction Content = Define(nameof(Content));
+        public static BuildAction EmbeddedResource = Define(nameof(EmbeddedResource));
+        public static BuildAction ApplicationDefinition = Define(nameof(ApplicationDefinition));
+        public static BuildAction Page = Define(nameof(Page));
+        public static BuildAction Resource = Define(nameof(Resource));
+        public static BuildAction SplashScreen = Define(nameof(SplashScreen));
+        public static BuildAction DesignData = Define(nameof(DesignData));
+        public static BuildAction DesignDataWithDesignTimeCreatableTypes = Define(nameof(DesignDataWithDesignTimeCreatableTypes));
+        public static BuildAction CodeAnalysisDictionary = Define(nameof(CodeAnalysisDictionary));
+        public static BuildAction AndroidAsset = Define(nameof(AndroidAsset));
+        public static BuildAction AndroidResource = Define(nameof(AndroidResource));
+        public static BuildAction BundleResource = Define(nameof(BundleResource));
 
         public string Value { get; }
 
-        public BuildAction(string value)
+        public bool IsKnown { get; }
+
+        private BuildAction(string value, bool isKnown)
         {
             Value = value;
+            IsKnown = isKnown;
         }
 
-        public static bool TryParse(string value, out BuildAction type)
+        public static BuildAction Parse(string value)
         {
-            // We only support values we know about
-            if (string.Equals(Compile.Value, value, StringComparison.OrdinalIgnoreCase))
+            BuildAction action;
+            if (_knownBuildActions.TryGetValue(value, out action))
             {
-                type = Compile;
-                return true;
+                return action;
             }
-            else if (string.Equals(EmbeddedResource.Value, value, StringComparison.OrdinalIgnoreCase))
-            {
-                type = EmbeddedResource;
-                return true;
-            }
-            else if (string.Equals(Resource.Value, value, StringComparison.OrdinalIgnoreCase))
-            {
-                type = Resource;
-                return true;
-            }
-            else if (string.Equals(None.Value, value, StringComparison.OrdinalIgnoreCase))
-            {
-                type = None;
-                return true;
-            }
-            type = None;
-            return false;
+            return new BuildAction(value, false);
         }
 
         public override string ToString()
         {
-            return $"BuildAction.{Value}";
+            return $"{Value}";
         }
 
         public bool Equals(BuildAction other)
@@ -81,6 +78,13 @@ namespace NuGet.ProjectModel
                 return 0;
             }
             return StringComparer.OrdinalIgnoreCase.GetHashCode(Value);
+        }
+
+        private static BuildAction Define(string name)
+        {
+            var buildAction = new BuildAction(name, true);
+            _knownBuildActions[name] = buildAction;
+            return buildAction;
         }
     }
 }

@@ -379,7 +379,9 @@ namespace NuGet.ProjectModel
             var jsonObject = json as JObject;
             if (jsonObject != null)
             {
-                contentFile.BuildAction = ReadProperty<string>(jsonObject, LockFileContentFile.BuildActionProperty);
+                var buildAction = ReadProperty<string>(jsonObject, LockFileContentFile.BuildActionProperty) 
+                    ?? PackagingConstants.ContentFilesDefaultBuildAction;
+                contentFile.BuildAction = BuildAction.Parse(buildAction);
                 var codeLanguage = ReadProperty<string>(jsonObject, LockFileContentFile.CodeLanguageProperty);
                 if (codeLanguage == "any")
                 {
