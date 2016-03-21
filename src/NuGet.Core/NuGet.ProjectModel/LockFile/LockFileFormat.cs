@@ -282,8 +282,8 @@ namespace NuGet.ProjectModel
             library.CompileTimeAssemblies = ReadObject(json[CompileProperty] as JObject, ReadFileItem);
             library.ResourceAssemblies = ReadObject(json[ResourceProperty] as JObject, ReadFileItem);
             library.NativeLibraries = ReadObject(json[NativeProperty] as JObject, ReadFileItem);
-            library.ContentFiles = ReadObject(json[ContentFilesProperty] as JObject, ReadFileItem);
-            library.RuntimeTargets = ReadObject(json[RuntimeTargetsProperty] as JObject, ReadFileItem);
+            library.ContentFiles = ReadObject(json[ContentFilesProperty] as JObject, ReadContentFile);
+            library.RuntimeTargets = ReadObject(json[RuntimeTargetsProperty] as JObject, ReadRuntimeTarget);
 
             return library;
         }
@@ -299,7 +299,7 @@ namespace NuGet.ProjectModel
 
             if (library.Framework != null)
             {
-                json[FrameworkProperty] = library.Framework;
+                json[FrameworkProperty] = library.Framework.ToString();
             }
 
             if (library.Dependencies.Count > 0)
@@ -359,6 +359,41 @@ namespace NuGet.ProjectModel
             }
 
             return new JProperty(library.Name + "/" + library.Version.ToNormalizedString(), json);
+        }
+
+        private static LockFileRuntimeTarget ReadRuntimeTarget(string property, JToken json)
+        {
+            var jsonObject = json as JObject;
+
+            return new LockFileRuntimeTarget(property)
+            {
+                Runtime = ReadProperty<string>(jsonObject, LockFileRuntimeTarget.RidProperty),
+                AssetType = ReadProperty<string>(jsonObject, LockFileRuntimeTarget.AssetTypeProperty)
+            };
+        }
+
+        private static LockFileContentFile ReadContentFile(string property, JToken json)
+        {
+            var contentFile = new LockFileContentFile(property);
+
+            var jsonObject = json as JObject;
+            if (jsonObject != null)
+            {
+                var buildAction = ReadProperty<string>(jsonObject, LockFileContentFile.BuildActionProperty) 
+                    ?? PackagingConstants.ContentFilesDefaultBuildAction;
+                contentFile.BuildAction = BuildAction.Parse(buildAction);
+                var codeLanguage = ReadProperty<string>(jsonObject, LockFileContentFile.CodeLanguageProperty);
+                if (codeLanguage == "any")
+                {
+                    codeLanguage = null;
+                }
+                contentFile.CodeLanguage = codeLanguage;
+                contentFile.OutputPath = ReadProperty<string>(jsonObject, LockFileContentFile.OutputPathProperty);
+                contentFile.PPOutputPath = ReadProperty<string>(jsonObject, LockFileContentFile.PPOutputPathProperty);
+                contentFile.CopyToOutput = ReadProperty<bool>(jsonObject, LockFileContentFile.CopyToOutputProperty);
+            }
+
+            return contentFile;
         }
 
         private static ProjectFileDependencyGroup ReadProjectFileDependencyGroup(string property, JToken json)
